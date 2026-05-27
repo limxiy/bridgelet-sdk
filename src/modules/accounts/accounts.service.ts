@@ -91,7 +91,7 @@ export class AccountsService {
   private readonly logger = new Logger(AccountsService.name);
   private readonly ENCRYPTION_KEY: Buffer;
   private readonly IV_LENGTH = 16;
-  
+
   constructor(
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
