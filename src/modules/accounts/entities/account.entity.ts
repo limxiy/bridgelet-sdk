@@ -64,8 +64,16 @@ export class Account {
   @Column({ type: 'timestamp', nullable: true })
   claimedAt: Date | null;
 
+  // Then wherever your expiry flow sets account status to EXPIRED (likely in the sweeps or a scheduler module once built), ensure this is also set:
+  // account.status = AccountStatus.EXPIRED;
+  // account.expiredAt = new Date();
+  // await this.accountsRepository.save(account);
   @Column({ type: 'timestamp', nullable: true })
-  expiredAt: Date; // Set when expiry is processed. Distinct from expiresAt (scheduled time).
+  expiredAt: Date | null; // Actual time expiry was processed - set by the expiry handler, null until then
+
+  @Column({ type: 'timestamp' })
+  @Index()
+  expiresAt: Date; // Scheduled expiry time - set on creation, used by the expiry scheduler
 
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
