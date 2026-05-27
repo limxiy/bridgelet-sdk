@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { StellarService } from '../stellar.service.js';
 import { Account } from '../../../modules/accounts/entities/account.entity.js';
-import { AccountStatus } from '@/modules/accounts/enums/account-status.enum.js';
+import { AccountStatus } from '../../accounts/enums/account-status.enum.js';
 
 /**
  * PaymentMonitorProvider - Horizon SSE-based payment detection

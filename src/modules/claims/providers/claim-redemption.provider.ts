@@ -12,7 +12,7 @@ import { Account } from '../../accounts/entities/account.entity.js';
 import { ClaimRedemptionResponseDto } from '../dto/claim-redemption-response.dto.js';
 import { SweepsService } from '../../sweeps/sweeps.service.js';
 import { TokenVerificationProvider } from './token-verification.provider.js';
-import { AccountStatus } from '@/modules/accounts/enums/account-status.enum.js';
+import { AccountStatus } from '../../accounts/enums/account-status.enum.js';
 
 @Injectable()
 export class ClaimRedemptionProvider {
