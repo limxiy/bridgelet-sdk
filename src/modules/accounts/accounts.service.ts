@@ -95,7 +95,14 @@ export class AccountsService {
     private jwtService: JwtService,
     private stellarService: StellarService,
     private paymentMonitor: PaymentMonitorProvider,
-  ) {}
+    private readonly ENCRYPTION_KEY: Buffer,
+    private readonly IV_LENGTH = 16,
+  ) {
+    this.ENCRYPTION_KEY = Buffer.from(
+      this.configService.getOrThrow<string>('app.encryptionKey'),
+      'hex',
+    );
+  }
 
   public async create(
     createAccountDto: CreateAccountDto,
@@ -234,17 +241,43 @@ export class AccountsService {
   }
 
   private encryptSecret(secret: string): string {
-    // encryptSecret
-    // -------------
-    // WARNING: MVP placeholder — this must be replaced for production.
-    // - Current implementation: base64 encoding. This is NOT encryption and
-    //   should never be used to store secrets in production systems.
-    // - Recommended: use AES-256-GCM (or KMS-backed envelope encryption) and
-    //   manage keys with a secrets manager. If you change this, provide a
-    //   documented migration path for existing records.
-    // TODO: Implement proper encryption (AES-256)
-    // For MVP, using base64 (NOT SECURE for production)
-    return Buffer.from(secret).toString('base64');
+    const iv = crypto.randomBytes(this.IV_LENGTH);
+    const cipher = crypto.createCipheriv(
+      'aes-256-gcm',
+      this.ENCRYPTION_KEY,
+      iv,
+    );
+
+    const encrypted = Buffer.concat([
+      cipher.update(secret, 'utf8'),
+      cipher.final(),
+    ]);
+    const authTag = cipher.getAuthTag();
+
+    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted.toString('hex')}`;
+  }
+
+  /**
+   * Decrypts a secret key encrypted by encryptSecret().
+   * Required when the claims module needs to sign sweep transactions
+   * using the ephemeral account's secret.
+   */
+  private decryptSecret(encrypted: string): string {
+    const [ivHex, authTagHex, dataHex] = encrypted.split(':');
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const data = Buffer.from(dataHex, 'hex');
+
+    const decipher = crypto.createDecipheriv(
+      'aes-256-gcm',
+      this.ENCRYPTION_KEY,
+      iv,
+    );
+    decipher.setAuthTag(authTag);
+
+    return Buffer.concat([decipher.update(data), decipher.final()]).toString(
+      'utf8',
+    );
   }
 
   private mapToResponseDto(account: Account): AccountResponseDto {

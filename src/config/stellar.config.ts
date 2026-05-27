@@ -12,4 +12,5 @@ export default registerAs('stellar', () => ({
   contracts: {
     ephemeralAccount: process.env.EPHEMERAL_ACCOUNT_CONTRACT_ID,
   },
+  encryptionKey: process.env.ENCRYPTION_KEY,
 }));
