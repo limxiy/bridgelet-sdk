@@ -6,14 +6,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-
-export enum AccountStatus {
-  PENDING_PAYMENT = 'pending_payment',
-  PENDING_CLAIM = 'pending_claim',
-  CLAIMED = 'claimed',
-  EXPIRED = 'expired',
-  FAILED = 'failed',
-}
+import { AccountStatus } from '../enums/account-status.enum.js';
 
 @Entity('accounts')
 export class Account {
