@@ -47,6 +47,14 @@ The following services/imports are currently **commented out** to allow `npm run
      `expiry_ledger` (u32 ledger sequence) required by the contract
    - `expiresAt` Date is currently unused in `StellarService`
    - Conversion formula: `current_ledger + (expiresIn / 5)`
+4. **Sweep Authorization Signature** (`src/modules/sweeps/providers/contract.provider.ts`)
+   - **Current:** `generateAuthSignature()` produces a fake 64-byte stub signature
+   - **Works because:** `EphemeralAccount.verify_sweep_authorization()` in `bridgelet-core`
+     is also a stub that accepts any signature (documented in bridgelet-core README)
+   - **Impact:** Sweep authorization is not cryptographically enforced in development
+   - **Guard:** Method throws if called outside `development` or `test` environments
+   - **Required:** Real Ed25519 signing against the `SweepController`'s `authorized_signer`
+     once `bridgelet-core` implements real verification.
 
 ### Status:
 
