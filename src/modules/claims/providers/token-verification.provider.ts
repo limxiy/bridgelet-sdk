@@ -122,6 +122,12 @@ export class TokenVerificationProvider {
 
   private validateAccountStatus(account: Account): void {
     switch (account.status) {
+      case AccountStatus.INITIALIZING:
+        this.logger.warn(`Account ${account.id} is still being initialized`);
+        throw new BadRequestException(
+          `This account is still being set up` +
+            `Please wait a few seconds and try again`,
+        );
       case AccountStatus.CLAIMED:
         this.logger.warn(`Account ${account.id} has already been claimed`);
         throw new ConflictException('Claim has already been redeemed');

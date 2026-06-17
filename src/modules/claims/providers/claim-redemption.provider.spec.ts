@@ -109,6 +109,22 @@ describe('ClaimRedemptionProvider', () => {
     jest.clearAllMocks();
   });
 
+  describe('validateAccountStatus', () => {
+    it('throws BadRequestException with setup message for INITIALIZING status', async () => {
+      mockTokenVerificationProvider.verifyClaimToken.mockRejectedValue(
+        new BadRequestException('This account is still being set up'),
+      );
+
+      await expect(
+        provider.redeemClaim(VALID_TOKEN, VALID_DESTINATION),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        provider.redeemClaim(VALID_TOKEN, VALID_DESTINATION),
+      ).rejects.toThrow('still being set up');
+    });
+  });
+
   describe('redeemClaim - successful redemption', () => {
     it('should successfully redeem claim and execute sweep', async () => {
       const result = await provider.redeemClaim(VALID_TOKEN, VALID_DESTINATION);
